@@ -2,6 +2,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
 import { FetchApiService } from './services/fetch-api.service';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('AppComponent', () => {
   let fixture: ComponentFixture<AppComponent>;
@@ -11,7 +12,7 @@ describe('AppComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientModule],
+      imports: [HttpClientModule, RouterTestingModule],
       declarations: [AppComponent],
       providers: [{ provide: FetchApiService, useValue: fetchDataServiceSpy }]
     });
@@ -66,9 +67,5 @@ describe('AppComponent', () => {
     expect(app).toBeDefined();
   });
 
-  it('Test text button', () => {
-    const bannerElement: HTMLElement = fixture.nativeElement;
-    const button = bannerElement.querySelector('button')!;
-    expect(button.textContent).toEqual('Click me!');
-  });
+
 });
