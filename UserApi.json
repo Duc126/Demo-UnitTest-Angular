@@ -1,0 +1,19 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "name one",
+      "description": "description one"
+    },
+    {
+      "id": 2,
+      "name": "name two",
+      "description": "description two"
+    },
+    {
+      "id": 3,
+      "name": "name three",
+      "description": "description three"
+    }
+  ]
+}
