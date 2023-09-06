@@ -2,18 +2,21 @@
   "users": [
     {
       "id": 1,
-      "name": "name one",
-      "description": "description one"
+      "name": "test",
+      "description": "description one",
+      "email": "test@gmail.com"
     },
     {
       "id": 2,
-      "name": "name two",
-      "description": "description two"
+      "name": "henry",
+      "description": "description two",
+      "email": "henry@gmail.com"
     },
     {
       "id": 3,
-      "name": "name three",
-      "description": "description three"
+      "name": "join",
+      "description": "description three",
+      "email": "join@gmail.com"
     }
   ]
 }

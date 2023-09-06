@@ -6,6 +6,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 describe('UserService', () => {
   let service: UserService;
   let httpMock: HttpTestingController;
+  let baseURL = 'http://localhost:3000/';
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientModule, HttpClientTestingModule],
@@ -27,8 +28,7 @@ describe('UserService', () => {
 
   //Test getAllUserData method data from the backend
   it('should Test getAllUserData', inject([UserService], (service: UserService) => {
-    const getAllUserData = [{ id: 1, name: 'name', description: 'description' }];
-    const baseURL = 'http://localhost:3000/';
+    const getAllUserData = [{ id: 1, name: 'name', description: 'description', email: 'email@gmail.com' }];
 
     service.getAllUserData().subscribe((data) => {
       expect(data).toEqual(getAllUserData);
@@ -43,8 +43,7 @@ describe('UserService', () => {
     [UserService],
     (userService: UserService) => {
       const id = 1;
-      const baseURL = 'http://localhost:3000/';
-      const getUserData = { id: id, name: 'name', description: 'description' };
+      const getUserData = { id: id, name: 'name', description: 'description', email: 'email@gmail.com' };
 
       userService.getUser(id).subscribe((getData) => {
         expect(getData).toEqual(getUserData);
@@ -61,8 +60,7 @@ describe('UserService', () => {
 
   it('should update user data', inject([UserService], (userService: UserService) => {
     const id = 1;
-    const baseURL = 'http://localhost:3000/';
-    const updateUserData = { id: id, name: 'Update name', description: 'Update description' };
+    const updateUserData = { id: id, name: 'Update name', description: 'Update description', email: 'email@gmail.com' };
 
     userService.updateUser(updateUserData).subscribe((updateData) => {
       expect(updateData).toEqual(updateUserData);
@@ -76,8 +74,7 @@ describe('UserService', () => {
   //Test a method that deletes user data. Verify that the correct data is sent to the backend.\
   it('should delete user data', inject([UserService], (userService: UserService) => {
     const id = 1;
-    const baseURL = 'http://localhost:3000/';
-    const deleteUserData = { id: id, name: 'Delete name', description: 'Delete description' };
+    const deleteUserData = { id: id, name: 'Delete name', description: 'Delete description', email: 'email@gmail.com' };
 
     userService.deleteUser(id).subscribe((deleteData) => {
       expect(deleteData).toEqual(deleteUserData);
