@@ -1,12 +1,23 @@
-import { inject, TestBed } from '@angular/core/testing';
+import { TestBed, inject } from '@angular/core/testing';
 import { UserService } from './user-api.service';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { Observable, throwError } from 'rxjs';
 
 describe('UserService', () => {
   let service: UserService;
   let httpMock: HttpTestingController;
+  let id = 1;
   let baseURL = 'http://localhost:3000/';
+  const getData = [{ id: id, name: 'name', description: 'description', email: 'email@gmail.com' }];
+  const updateUserData = { id: id, name: 'Update name', description: 'Update description', email: 'email@gmail.com' };
+  const deleteUserData = { id: id, name: 'Delete name', description: 'Delete description', email: 'email@gmail.com' };
+  const errorResponses: { [key: string]: HttpErrorResponse } = {
+    '500': new HttpErrorResponse({ error: 'Internal Server Error', status: 500, statusText: 'Internal Server Error' }),
+    '404': new HttpErrorResponse({ error: 'Not Found', status: 404, statusText: 'Not Found' }),
+    '403': new HttpErrorResponse({ error: 'Forbidden', status: 403, statusText: 'Forbidden' })
+  };
+
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientModule, HttpClientTestingModule],
@@ -26,62 +37,67 @@ describe('UserService', () => {
     expect(service).toBeTruthy();
   });
 
-  //Test getAllUserData method data from the backend
-  it('should Test getAllUserData', inject([UserService], (service: UserService) => {
-    const getAllUserData = [{ id: 1, name: 'name', description: 'description', email: 'email@gmail.com' }];
-
-    service.getAllUserData().subscribe((data) => {
-      expect(data).toEqual(getAllUserData);
+  //function testMethodDataBackEnd general
+  function testMethodDataBackEnd(method: Observable<any>, url: string, requestData: any, requestMethod: string) {
+    method.subscribe((data) => {
+      expect(data).toEqual(requestData);
     });
-    const req = httpMock.expectOne(baseURL + 'users');
-    expect(req.request.method).toBe('GET');
-    req.flush(getAllUserData);
-  }));
 
-  //Test a method that retrieves user data from the backend. You can use Angular's HttpClientTestingModule to mock the HTTP requests.
-  it('should get user data from Backend', inject(
-    [UserService],
-    (userService: UserService) => {
-      const id = 1;
-      const getUserData = { id: id, name: 'name', description: 'description', email: 'email@gmail.com' };
+    const req = httpMock.expectOne(url);
+    expect(req.request.method).toBe(requestMethod);
+    req.flush(requestData);
+  }
 
-      userService.getUser(id).subscribe((getData) => {
-        expect(getData).toEqual(getUserData);
-      });
+  it('should Test getAllUserData', () => {
+    testMethodDataBackEnd(service.getAllUserData(), baseURL + 'users', getData, 'GET');
+  });
 
-      const req = httpMock.expectOne(baseURL + 'users/' + id);
-      expect(req.request.method).toBe('GET');
+  it('should get user data from Backend', () => {
+    testMethodDataBackEnd(service.getUser(id), baseURL + 'users/' + id, getData, 'GET');
+  });
 
-      req.flush(getUserData);
-    }
-  ));
+  it('should update user data', () => {
+    testMethodDataBackEnd(service.updateUser(updateUserData), baseURL + 'users/' + id, updateUserData, 'PUT');
+  });
 
-  //Test a method that updates user data. Verify that the correct data is sent to the backend.
+  it('should delete user data', () => {
+    testMethodDataBackEnd(service.deleteUser(id), baseURL + 'users/' + id, deleteUserData, 'DELETE');
+  });
 
-  it('should update user data', inject([UserService], (userService: UserService) => {
-    const id = 1;
-    const updateUserData = { id: id, name: 'Update name', description: 'Update description', email: 'email@gmail.com' };
+  //function test errorHandlingForMethod general
 
-    userService.updateUser(updateUserData).subscribe((updateData) => {
-      expect(updateData).toEqual(updateUserData);
+  function errorHandlingForMethod(method: Observable<any>, url: string, errorResponses: { [key: string]: HttpErrorResponse }) {
+    Object.keys(errorResponses).forEach(errorCode => {
+      const errorResponse = errorResponses[errorCode];
+
+      method.subscribe(
+        data => fail('Expected an error, but received data'),
+        error => {
+          expect(error.status).toBe(errorResponse.status);
+          expect(error.statusText).toBe(errorResponse.statusText);
+        }
+      );
+
+      const req = httpMock.expectOne(url);
+      req.flush(null, errorResponse);
     });
-    const req = httpMock.expectOne(baseURL + 'users/' + id);
-    expect(req.request.method).toBe('PUT');
-    req.flush(updateUserData);
 
-  }));
+    httpMock.verify();
+  }
 
-  //Test a method that deletes user data. Verify that the correct data is sent to the backend.\
-  it('should delete user data', inject([UserService], (userService: UserService) => {
-    const id = 1;
-    const deleteUserData = { id: id, name: 'Delete name', description: 'Delete description', email: 'email@gmail.com' };
+  it('should handle errors for getAllUserData', () => {
+    errorHandlingForMethod(service.getAllUserData(), baseURL + 'users', errorResponses);
+  });
 
-    userService.deleteUser(id).subscribe((deleteData) => {
-      expect(deleteData).toEqual(deleteUserData);
-    });
-    const req = httpMock.expectOne(baseURL + 'users/' + id);
-    expect(req.request.method).toBe('DELETE');
-    req.flush(deleteUserData);
+  it('should handle errors for getUser', () => {
+    errorHandlingForMethod(service.getUser(id), baseURL + 'users/' + id, errorResponses);
+  });
 
-  }));
+  it('should handle errors for updateUser', () => {
+    errorHandlingForMethod(service.updateUser(updateUserData), baseURL + 'users/' + id, errorResponses);
+  });
+
+  it('should handle errors for deleteUser', () => {
+    errorHandlingForMethod(service.deleteUser(id), baseURL + 'users/' + id, errorResponses);
+  });
 });
