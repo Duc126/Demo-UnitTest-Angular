@@ -1,14 +1,15 @@
 import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule } from '@angular/forms';
+import { AbstractControl, ReactiveFormsModule } from '@angular/forms';
 import { UserService } from '../services/user-api.service';
 import { LoginFormComponent } from './login-form.component';
 
 describe('LoginFormComponent', () => {
   let component: LoginFormComponent;
   let fixture: ComponentFixture<LoginFormComponent>;
-
+  let name: AbstractControl;
+  let email: AbstractControl;
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [LoginFormComponent],
@@ -18,6 +19,8 @@ describe('LoginFormComponent', () => {
     fixture = TestBed.createComponent(LoginFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+    name = component.userForm.controls['name'];
+    email = component.userForm.controls['email'];
   });
 
   it('should create form', () => {
@@ -30,26 +33,31 @@ describe('LoginFormComponent', () => {
   });
 
   it('should become valid input values', () => {
-    const name = component.userForm.controls['name'];
-    const email = component.userForm.controls['email'];
     name.setValue('name');
     email.setValue('test@gmail.com');
     expect(component.userForm.valid).toBeTruthy();
   });
 
-  //should display error messages for invalid input values
-  it('should display error messages for invalid input values', () => {
-    const name = component.userForm.controls['name'];
-    const email = component.userForm.controls['email'];
-
-    name.setValue('');
-    email.setValue('invalid-email');
-    name.markAsTouched();
+  //function test error email general
+  function testEmailErrors(emailValue: string, expectedRequired: boolean, expectedEmail: boolean) {
+    email.setValue(emailValue);
     email.markAsTouched();
+    name.setValue('');
+    name.markAsTouched();
 
-    expect(name.hasError('required')).toBe(name.hasError('required') ? true : false);
-    expect(email.hasError('required')).toBe(email.hasError('required') ? true : false);
-    expect(email.hasError('email')).toBe(email.hasError('email') ? true : false);
+    expect(name.hasError('required')).toBe(true);
+    expect(email.hasError('required')).toBe(expectedRequired);
+    expect(email.hasError('email')).toBe(expectedEmail);
+  }
+
+  //should Check if the email is formatted correctly
+  it('should display error messages for invalid input values', () => {
+    testEmailErrors('invalid-email', false, true);
+  });
+
+  //should check if email is required
+  it('should check if email is required', () => {
+    testEmailErrors('', true, false);
   });
 
 });
