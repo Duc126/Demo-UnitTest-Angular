@@ -38,13 +38,23 @@ describe('CounterComponent', () => {
     expect(component.count).toEqual(-1);
   });
 
-  //Test that the component template displays the correct count.
-  it('should display correct count', () => {
-    const count = 5;
+  //function test display correct count general
+  function testDisplayCorrectCount(count: number) {
     component.count = count;
     fixture.detectChanges();
     const countElement = fixture.nativeElement.querySelector('p');
     expect(countElement.textContent).toContain(count);
+  }
+
+  //should simple display correct count
+  it('should display correct count', () => {
+    const count = 5;
+    testDisplayCorrectCount(count);
   });
 
+  //should display correct count when negative
+  it('should display correct count when negative', () => {
+    const count = -5;
+    testDisplayCorrectCount(count);
+  });
 });
